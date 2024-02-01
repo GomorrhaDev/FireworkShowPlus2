@@ -1,0 +1,11 @@
+name: FireworkShowPlus2
+version: '${project.version}'
+main: dev.gomorrha.fireworkshowplus2.FireworkShowPlus2
+api-version: 1.20
+prefix: UFS
+authors: [ Igufguf, Gomorrha, Zuwel, Jackietkfrost ]
+description: The remake of a remake of igufguf's Ultimate-FireworkShow Plugin
+commands:
+  fireworkshow:
+    description: Basic Fireworkshow command
+    aliases: fws
