@@ -1,6 +1,7 @@
 package dev.gomorrha.fireworkshowplus2;
 
 import dev.gomorrha.fireworkshowplus2.commands.CommandHandler;
+import dev.gomorrha.fireworkshowplus2.listeners.FireworkClickEvent;
 import dev.gomorrha.fireworkshowplus2.objects.Frame;
 import dev.gomorrha.fireworkshowplus2.objects.Show;
 import dev.gomorrha.fireworkshowplus2.objects.fireworks.NormalFireworks;
@@ -10,6 +11,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -21,10 +23,14 @@ public final class FireworkShowPlus2 extends JavaPlugin {
     private static FileConfiguration showsfile = new YamlConfiguration();
     public static FireworkShowPlus2 fws;
     public static File dataFolder;
+    public static Boolean placeMode = false;
     private static Server server;
+
     @Override
     public void onEnable()
     {
+
+        getServer().getPluginManager().registerEvents(new FireworkClickEvent(), this);
         CommandHandler commands = new CommandHandler();
         fws = this;
         server = getServer();
@@ -100,5 +106,12 @@ public final class FireworkShowPlus2 extends JavaPlugin {
     {
         shows.put(name, new Show());
         showsfile.set(name, shows.get(name));
+    }
+    public static Boolean getPlaceMode(){
+        return placeMode;
+    }
+    public static void togglePlaceMode(Player player) {
+        placeMode = !placeMode;
+        player.sendMessage(ChatColor.GREEN + "Place mode is now " + (placeMode ? "enabled" : "disabled"));
     }
 }

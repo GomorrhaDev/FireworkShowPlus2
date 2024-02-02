@@ -44,6 +44,10 @@ Aliases: /fireworkshow - /fws
   - Add the firework you're holding to the given frame on your current position
   - fireworkshow.newfw
 
+* **/fws place <showname> <frameid>**
+  - Place fireworks that you are holding in your hand
+  - fireworkshow.newfw
+
 * **/fws highest <showname> <true/false>**
   - Specify whether the firework will launch from where it was initially added to a frame or if it will launch from the highest block above or below it.
   - fireworkshow.highest

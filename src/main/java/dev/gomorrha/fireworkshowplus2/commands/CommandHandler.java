@@ -9,13 +9,63 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.metadata.FixedMetadataValue;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
-public class CommandHandler implements CommandExecutor {
+public class CommandHandler implements CommandExecutor, TabCompleter {
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
+        List<String> completions = new ArrayList<>();
+
+        if (cmd.getName().equalsIgnoreCase("fireworkshow")) {
+            if (args.length == 1) {
+                completions.add("create");
+                completions.add("delete");
+                completions.add("addframe");
+                completions.add("delframe");
+                completions.add("dupframe");
+                completions.add("newfw");
+                completions.add("play");
+                completions.add("stop");
+                completions.add("list");
+                completions.add("highest");
+                completions.add("place");
+                return completions;
+            } else if (args.length == 2) {
+                String subcommand = args[0].toLowerCase();
+
+                if (subcommand.equals("delete") || subcommand.equals("play") || subcommand.equals("stop") || subcommand.equals("highest") || subcommand.equals("place")) {
+                    for (String showName : FireworkShowPlus2.getShows().keySet()) {
+                        completions.add(showName);
+                    }
+                } else if (subcommand.equals("addframe") || subcommand.equals("delframe") || subcommand.equals("dupframe") || subcommand.equals("newfw")) {
+                    for (String showName : FireworkShowPlus2.getShows().keySet()) {
+                        completions.add(showName);
+                    }
+                }
+
+                return completions;
+            } else if (args.length == 3 && args[0].equalsIgnoreCase("place")) {
+                String showName = args[1].toLowerCase();
+                if (FireworkShowPlus2.getShows().containsKey(showName)) {
+                    int frameCount = FireworkShowPlus2.getShows().get(showName).frames.size();
+                    for (int i = 1; i <= frameCount; i++) {
+                        completions.add(String.valueOf(i));
+                    }
+                }
+            }
+        }
+
+        return completions;
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
@@ -389,6 +439,53 @@ public class CommandHandler implements CommandExecutor {
             sender.sendMessage(ChatColor.GREEN + "You set highest parameter for '" + ChatColor.DARK_GREEN + name
                     + ChatColor.GREEN + "' to " + FireworkShowPlus2.getShows().get(name).getHighest() + ".");
         }
+
+        else if (args[0].equalsIgnoreCase("place")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "This command can only be executed by players!");
+                return true;
+            }
+
+            Player player = (Player) sender;
+
+            if (!sender.hasPermission("fireworkshow.newfw"))
+            {
+                sender.sendMessage(ChatColor.RED + "You don't have permission to use this command!");
+                return true;
+            }
+
+            if(FireworkShowPlus2.getPlaceMode()){
+                FireworkShowPlus2.togglePlaceMode(player);
+                return true;
+            }
+
+            if (args.length != 3 ) {
+                sender.sendMessage(ChatColor.RED + "Invalid arguments, you should try " + ChatColor.DARK_RED + "/" + cmd.getName() + " place <showname> <frameid>");
+                return true;
+            }
+
+            String name = args[1].toLowerCase();
+
+            if (!FireworkShowPlus2.getShows().containsKey(name)) {
+                sender.sendMessage(ChatColor.RED + "A show with that name doesn't exist!");
+                return true;
+            }
+
+            int frameId;
+            if (!args[2].matches("[0-9]+") || FireworkShowPlus2.getShows().get(name).frames.size() < Integer.valueOf(args[2])) {
+                sender.sendMessage(ChatColor.RED + "That frame does not exist!");
+                return true;
+            }
+            frameId = Integer.valueOf(args[2]);
+
+            if(!FireworkShowPlus2.getPlaceMode()) {
+                FireworkShowPlus2.togglePlaceMode(player); // Enable place mode
+                player.sendMessage(ChatColor.GREEN + "Now click on the ground where you want to place the firework.");
+                player.setMetadata("fireworkshow_place_showname", new FixedMetadataValue(FireworkShowPlus2.fws, name));
+                player.setMetadata("fireworkshow_place_frameid", new FixedMetadataValue(FireworkShowPlus2.fws, frameId));
+            }
+        }
+
 
         FireworkShowPlus2.saveShows();
         return true;
