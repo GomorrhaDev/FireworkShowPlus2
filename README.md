@@ -22,6 +22,10 @@ Aliases: /fireworkshow - /fws
 * **/fws play <showname>**  
   - Start a firework show
   - fireworkshow.play
+  
+* **/fws playframe <showname> <frameid>**
+  - Start a specific frame of a show
+  - fireworkshow.play
 
 * **/fws create <showname>**  
   - Create a new firework show
@@ -58,3 +62,7 @@ Aliases: /fireworkshow - /fws
 * **/fws highest <showname> <true/false>**
   - Specify whether the firework will launch from where it was initially added to a frame or if it will launch from the highest block above or below it.
   - fireworkshow.highest
+
+* **/fws mark <showname> <frameid>**
+  - Mark the spawn location for firework of a specific frame
+  - fireworkshow.mark

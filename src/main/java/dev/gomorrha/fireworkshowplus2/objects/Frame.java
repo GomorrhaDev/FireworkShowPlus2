@@ -1,8 +1,12 @@
 package dev.gomorrha.fireworkshowplus2.objects;
 
+import dev.gomorrha.fireworkshowplus2.FireworkShowPlus2;
 import dev.gomorrha.fireworkshowplus2.objects.fireworks.Fireworks;
 import dev.gomorrha.fireworkshowplus2.objects.fireworks.NormalFireworks;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,5 +66,10 @@ public class Frame implements ConfigurationSerializable {
             frame.add(fw);
         }
         return frame;
+    }
+    public void markPositions(World world, Location center, String name) {
+        for (NormalFireworks fw : fireworks) {
+            fw.toggleMark(FireworkShowPlus2.getShows().get(name).highest);
+        }
     }
 }

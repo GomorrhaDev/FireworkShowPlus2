@@ -4,8 +4,7 @@ import dev.gomorrha.fireworkshowplus2.FireworkShowPlus2;
 import dev.gomorrha.fireworkshowplus2.objects.Frame;
 import dev.gomorrha.fireworkshowplus2.objects.Show;
 import dev.gomorrha.fireworkshowplus2.objects.fireworks.NormalFireworks;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -34,10 +33,12 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
                 completions.add("dupframe");
                 completions.add("newfw");
                 completions.add("play");
+                completions.add("playframe");
                 completions.add("stop");
                 completions.add("list");
                 completions.add("highest");
                 completions.add("place");
+                completions.add("mark");
                 return completions;
             } else if (args.length == 2) {
                 String subcommand = args[0].toLowerCase();
@@ -50,9 +51,18 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
                     for (String showName : FireworkShowPlus2.getShows().keySet()) {
                         completions.add(showName);
                     }
+                } else if (subcommand.equals("mark")) {
+                    for (String showName : FireworkShowPlus2.getShows().keySet()) {
+                        completions.add(showName);
+                    }
+                } else if (subcommand.equals("playframe")) {
+                    for (String showName : FireworkShowPlus2.getShows().keySet()) {
+                        completions.add(showName);
+                    }
                 }
 
                 return completions;
+
             } else if (args.length == 3 && args[0].equalsIgnoreCase("place")) {
                 String showName = args[1].toLowerCase();
                 if (FireworkShowPlus2.getShows().containsKey(showName)) {
@@ -66,6 +76,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
 
         return completions;
     }
+
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
@@ -115,7 +126,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
             }
 
             show.play();
-            sender.sendMessage(ChatColor.GREEN + "You started the " + ChatColor.DARK_GREEN + args[1].toLowerCase() + ChatColor.GREEN + "Firework show!");
+            sender.sendMessage(ChatColor.GREEN + "You started the " + ChatColor.DARK_GREEN + args[1].toLowerCase() + ChatColor.GREEN + " Firework show!");
             return true;
         }
 
@@ -410,7 +421,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
         }
 
         else if ( args[0].equalsIgnoreCase("highest") ) {
-            if ( args.length < 2 ) {
+            if ( args.length != 3 ) {
                 sender.sendMessage(ChatColor.RED + "Invalid arguments, you should try " + ChatColor.DARK_RED + "/" + cmd.getName() + " highest <showname> <true/false>");
                 return true;
             }
@@ -486,6 +497,82 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
             }
         }
 
+        else if (args[0].equalsIgnoreCase("mark")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "This command can only be executed by players!");
+                return true;
+            }
+
+            if (!sender.hasPermission("fireworkshow.mark")) {
+                sender.sendMessage(ChatColor.RED + "You don't have permission to use this command!");
+                return true;
+            }
+
+            if (args.length != 3) {
+                sender.sendMessage(ChatColor.RED + "Invalid arguments, you should try " + ChatColor.DARK_RED + "/" + cmd.getName() + " mark <showname> <frameid>");
+                return true;
+            }
+
+            String name = args[1].toLowerCase();
+
+            if (!FireworkShowPlus2.getShows().containsKey(name)) {
+                sender.sendMessage(ChatColor.RED + "A show with that name doesn't exist!");
+                return true;
+            }
+
+            int frameId;
+            if (!args[2].matches("[0-9]+") || FireworkShowPlus2.getShows().get(name).frames.size() < Integer.valueOf(args[2])) {
+                sender.sendMessage(ChatColor.RED + "That frame does not exist!");
+                return true;
+            }
+            frameId = Integer.valueOf(args[2]);
+
+            Player player = (Player) sender;
+            World world = player.getWorld();
+            Location center = player.getLocation();
+
+            Frame frame = FireworkShowPlus2.getShows().get(name).frames.get(frameId - 1);
+            frame.markPositions(world, center, name);
+
+            sender.sendMessage(ChatColor.GREEN + "Marked positions for frame #" + ChatColor.YELLOW + frameId + ChatColor.GREEN + " in the Firework Show with name " + ChatColor.DARK_GREEN + name + ChatColor.GREEN + "!");
+        }
+
+        else if (args[0].equalsIgnoreCase("playframe"))
+        {
+            if (args.length != 3)
+            {
+                sender.sendMessage(ChatColor.RED + "Invalid arguments, you should try " + ChatColor.DARK_RED + "/" + cmd.getName() + " playframe <showname> <frameid>");
+                return true;
+            }
+
+            if (!(sender instanceof Player) || !sender.hasPermission("fireworkshow.play"))
+            {
+                sender.sendMessage(ChatColor.RED + "You don't have permission to use this command!");
+                return true;
+            }
+
+            String name = args[1].toLowerCase();
+
+            if (!FireworkShowPlus2.getShows().containsKey(name))
+            {
+                sender.sendMessage(ChatColor.RED + "A show with that name doesn't exist!");
+                return true;
+            }
+
+            int frameId;
+            if (!args[2].matches("[0-9]+") || FireworkShowPlus2.getShows().get(name).frames.size() < Integer.valueOf(args[2]))
+            {
+                sender.sendMessage(ChatColor.RED + "That frame does not exist!");
+                return true;
+            }
+            frameId = Integer.valueOf(args[2]);
+
+            Show show = FireworkShowPlus2.getShows().get(name);
+            Frame frame = show.frames.get(frameId - 1);
+
+            frame.play(FireworkShowPlus2.getShows().get(name).getHighest());
+            sender.sendMessage(ChatColor.GREEN + "You played frame #" + ChatColor.YELLOW + frameId + ChatColor.GREEN + " from the Firework Show with name " + ChatColor.DARK_GREEN + name + ChatColor.GREEN + "!");
+        }
 
         FireworkShowPlus2.saveShows();
         return true;
