@@ -51,10 +51,6 @@ Aliases: /fireworkshow - /fws
   - Add the firework in your main hand to the last frame on your current position
   - fireworkshow.newfw
   
-* **/fws newfw <showname> <frameid>**  
-  - Add the firework you're holding to the given frame on your current position
-  - fireworkshow.newfw
-
 * **/fws place <showname> <frameid>**
   - Place fireworks that you are holding in your hand
   - fireworkshow.newfw
