@@ -87,15 +87,17 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
         if (args.length < 1 || (args.length == 1 && args[0].equals("help")))
         {
             sender.sendMessage(ChatColor.GREEN + "/fws create <showname>" + ChatColor.GRAY + " Create a new fireworkshow");
+            sender.sendMessage(ChatColor.GREEN + "/fws play <showname>" + ChatColor.GRAY + " Start a fireworkshow");
+            sender.sendMessage(ChatColor.GREEN + "/fws place <showname> <frameid>" + ChatColor.GRAY + " Start/Stop the placing mode for a frame");
             sender.sendMessage(ChatColor.GREEN + "/fws delete <showname>" + ChatColor.GRAY + " Delete a fireworkshow");
             sender.sendMessage(ChatColor.GREEN + "/fws addframe <showname> <delay>" + ChatColor.GRAY + " Add a frame to a show");
             sender.sendMessage(ChatColor.GREEN + "/fws delframe <showname> <frameid>" + ChatColor.GRAY + " Delete a frame from a show");
             sender.sendMessage(ChatColor.GREEN + "/fws dupframe <showname> <frameid>" + ChatColor.GRAY + " Duplicate a frame from a show");
             sender.sendMessage(ChatColor.GREEN + "/fws newfw <showname> (<frameid>)" + ChatColor.GRAY + " Set a firework on your location for a show");
-            sender.sendMessage(ChatColor.GREEN + "/fws play <showname>" + ChatColor.GRAY + " Start a fireworkshow");
             sender.sendMessage(ChatColor.GREEN + "/fws highest <showname> <true/false>" + ChatColor.GRAY + " Set if the fireworks will spawn on the highest block available or where it was initially placed");
             return true;
         }
+
         //Play Fireworks show command
         if (args[0].equalsIgnoreCase("play"))
         {
@@ -105,7 +107,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            if (sender instanceof Player && !sender.hasPermission("fireworkshow.stop"))
+            if (!sender.hasPermission("fireworkshow.play"))
             {
                 sender.sendMessage(ChatColor.RED + "You don't have permission to use this command!");
                 return true;
@@ -139,7 +141,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            if ( sender instanceof Player && !sender.hasPermission("fireworkshow.play"))
+            if (!sender.hasPermission("fireworkshow.stop"))
             {
                 sender.sendMessage(ChatColor.RED + "You don't have permission to use this command!");
                 return true;
@@ -167,11 +169,6 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if ( !(sender instanceof Player) )
-        {
-            sender.sendMessage(ChatColor.RED + "This command can only be executed by players!");
-            return true;
-        }
         //Create Fireworks command
         if ( args[0].equalsIgnoreCase("create"))
         {
@@ -203,6 +200,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
                 sender.sendMessage(ChatColor.RED + "An error occurred while attempting to create a firework show!");
             }
         }
+
         //Delete Fireworks Command
         else if (args[0].equalsIgnoreCase("delete"))
         {
@@ -343,9 +341,15 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
         //Add new held firework into last, or specified frame.
         else if (args[0].equalsIgnoreCase("newfw"))
         {
+
             if (args.length < 2)
             {
                 sender.sendMessage(ChatColor.RED + "Invalid arguments, you should try " + ChatColor.DARK_RED + "/" + cmd.getName() + " newfw <showname>");
+                return true;
+            }
+
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "This command can only be executed by players!");
                 return true;
             }
 
@@ -382,7 +386,6 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
                 frame = FireworkShowPlus2.getShows().get(name).frames.size();
             }
             Player p = (Player) sender;
-//          if ( p.getInventory().getItemInMainHand() == null ||p.getInventory().getItemInMainHand().getType() != Material.FIREWORK_ROCKET)
             if (p.getInventory().getItemInMainHand().getType() != Material.FIREWORK_ROCKET)
             {
                 sender.sendMessage(ChatColor.RED + "Please hold a firework or firework charge in your hand!");
@@ -545,7 +548,7 @@ public class CommandHandler implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            if (!(sender instanceof Player) || !sender.hasPermission("fireworkshow.play"))
+            if (!sender.hasPermission("fireworkshow.play"))
             {
                 sender.sendMessage(ChatColor.RED + "You don't have permission to use this command!");
                 return true;
